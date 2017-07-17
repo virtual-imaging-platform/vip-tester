@@ -41,5 +41,7 @@ public class ScenarioDeleteOutputFileTest {
 				bool = false;
 			}
 		}
+		
+		// ajouter une autre execution qui stocke ces résultat au même endoit?
 	}
 }
