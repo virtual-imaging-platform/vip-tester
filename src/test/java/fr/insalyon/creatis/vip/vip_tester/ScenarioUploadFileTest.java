@@ -58,5 +58,7 @@ public class ScenarioUploadFileTest {
 		testExe.setInputValues(testMap);
 		
 		client.initAndStartExecution(testExe);
+		
+//		clientData.deletePath(uri);
 	}
 }

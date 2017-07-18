@@ -6,55 +6,12 @@
   <artifactId>vip-tester</artifactId>
   <version>0.1</version>
   <packaging>jar</packaging>
-
-  <name>vip</name>
-  <url>http://maven.apache.org</url>
   
   <properties>
   	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  	<maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
-  
-  <build>
-    <plugins>
-  	  <plugin>
-	    <groupId>org.codehaus.mojo</groupId>
-	    <artifactId>build-helper-maven-plugin</artifactId>
-	    <version>1.10</version>
-	    <executions>
-	      <execution>
-		    <id>add_sources</id>
-		    <phase>generate-sources</phase>
-		    <goals>
-		      <goal>add-source</goal>
-		    </goals>
-		    <configuration>
-		      <sources>
-		        <source>src/main/java</source>
-		      </sources>
-		    </configuration>
-	      </execution>
-	      <execution>
-		    <id>add_test_sources</id>
-		    <phase>generate-test-sources</phase>
-		    <goals>
-		      <goal>add-test-source</goal>
-		    </goals>
-		    <configuration>
-		      <sources>
-		        <source>src/test/java</source>
-		      </sources>
-		    </configuration>
-	      </execution>
-	    </executions>
-	  </plugin>
-	</plugins>
-     
-  	<resources>
-      <resource>
-  	    <directory> src/main/resources </directory>
-  	  </resource>
-    </resources>
-  </build>
 
   <dependencies>
     <dependency>
@@ -81,7 +38,6 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.12</version>
-      <!-- 	<scope>test</scope> -->
     </dependency>
      <dependency>
       <groupId>org.hamcrest</groupId>

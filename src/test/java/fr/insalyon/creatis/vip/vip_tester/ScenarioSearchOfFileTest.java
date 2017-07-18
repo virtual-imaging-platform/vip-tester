@@ -38,16 +38,15 @@ public class ScenarioSearchOfFileTest {
 		clientData.createPath("vip://vip.creatis.insa-lyon.fr/vip/Home/searchFileTest/");
 		clientData.doesPathExists("vip://vip.creatis.insa-lyon.fr/vip/Home/searchFileTest/");
 		
-		int i = 0;
 		Execution testExe = new Execution();
-		while(i<3){
+
 			
 			testExe.setName("pomme");
 			testExe.setPipelineIdentifier("GrepTest/1.1");
 			Map<String,Object> testMap = new HashMap<String, Object>();
 			testMap.put("text", "prune");
 			testMap.put("file", "/vip/Home/uploadTest/listeF");
-			testMap.put("output", "coconut"+i);
+			testMap.put("output", "coconut");
 			testMap.put("results-directory", "/vip/Home/searchFileTest");
 			testExe.setInputValues(testMap);
 			
@@ -57,6 +56,6 @@ public class ScenarioSearchOfFileTest {
 			
 			List<Path> liste = clientData.listDirectory("vip://vip.creatis.insa-lyon.fr/vip/Home/searchFileTest");
 			assertThat("the asked directory is empty",liste.size(), is(not(0)));
-		}
+		
 	}
 }

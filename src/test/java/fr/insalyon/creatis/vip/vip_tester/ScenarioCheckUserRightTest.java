@@ -24,14 +24,14 @@ public class ScenarioCheckUserRightTest {
 	@Test
 	public void scenario6() throws Exception{	
 		//create and start an execution
-		Execution body = vth.initExecution("vip/Home", "newScenario3", 1, 2);
+		Execution body = vth.initAdditionExecution("vip/Home", "newScenario3", 1, 2);
 		Execution result = client.initAndStartExecution(body);
 		assertThat("the execution is not running", result.getStatus(), is(StatusEnum.RUNNING));
 		String resId = result.getIdentifier(); 
 		
 		//create and start another execution
 		try{
-			body = vth.initExecution("vip/Home", "newScenario3", 1, 2);
+			body = vth.initAdditionExecution("vip/Home", "newScenario3", 1, 2);
 			result = client.initAndStartExecution(body);
 		}catch(ApiException ae){
 			client.killExecution(resId);

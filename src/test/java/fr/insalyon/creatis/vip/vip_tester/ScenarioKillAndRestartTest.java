@@ -25,7 +25,7 @@ public class ScenarioKillAndRestartTest {
 		@Test
 		public void scenario3() throws Exception{		
 			//create and start the execution
-			Execution body = vth.initExecution("vip/Home", "newScenarioKo", 1, 2);
+			Execution body = vth.initAdditionExecution("vip/Home", "newScenarioKo", 1, 2);
 			Execution result = client.initAndStartExecution(body);
 			String resId = result.getIdentifier();				
 			assertThat("the execution is not launched", result.getStatus(), is(StatusEnum.RUNNING));
@@ -39,7 +39,7 @@ public class ScenarioKillAndRestartTest {
 			assertThat("the bugged execution is not killed", result.getStatus(), is(StatusEnum.KILLED));
 					
 			//create and restart the execution check its status
-			body = vth.initExecution("vip/Home", "newScenario3", 1, 2);
+			body = vth.initAdditionExecution("vip/Home", "newScenario3", 1, 2);
 			result = client.initAndStartExecution(body);
 			assertThat("the execution has not been launched", result.getStatus(), is(StatusEnum.RUNNING));
 			resId = result.getIdentifier();

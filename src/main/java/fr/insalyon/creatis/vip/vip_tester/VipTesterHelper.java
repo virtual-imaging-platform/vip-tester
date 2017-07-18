@@ -1,14 +1,18 @@
 package fr.insalyon.creatis.vip.vip_tester;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.insalyon.creatis.vip.client.processing.api.DefaultApi;
+import fr.insalyon.creatis.vip.client.data.ApiException;
+import fr.insalyon.creatis.vip.client.data.model.Path;
 import fr.insalyon.creatis.vip.client.processing.ApiClient;
 import fr.insalyon.creatis.vip.client.processing.model.Execution;
 
@@ -18,12 +22,15 @@ public class VipTesterHelper {
 	private String apikey = null;
 	private DefaultApi defaultApiClient = null;
 	private fr.insalyon.creatis.vip.client.data.api.DefaultApi defaultApiClientData = null;
+	private static Logger logger = LoggerFactory.getLogger(VipTesterHelper.class);
+
 	
 	public VipTesterHelper(){
-		prop = initProperties();
+		initProperties();
 		this.apikey = System.getProperty("apikey");
-		defaultApiClient = initClient(prop.getProperty("viptest.additiontest.url"), apikey);
-		defaultApiClientData = initClientData(prop.getProperty("viptest.additiontest.url"), apikey);
+		if (this.apikey == null) throw new RuntimeException("No API key found in jvm parameters");
+		initClient(prop.getProperty("viptest.additiontest.url"), apikey);
+		initClientData(prop.getProperty("viptest.additiontest.url"), apikey);
 	}
 	
 	public String getAdditionTestPipelineId(){
@@ -38,6 +45,10 @@ public class VipTesterHelper {
 		return prop.getProperty("viptest.additiontest.timecheck");
 	}
 	
+	public String getUriPrefix(){
+		return prop.getProperty("viptest.uriprefix");
+	}
+	
 	public DefaultApi getDefaultApi(){
 		return defaultApiClient;
 	}
@@ -46,37 +57,34 @@ public class VipTesterHelper {
 		return defaultApiClientData;
 	}
 	
-	private Properties initProperties(){
-		Properties prop = new Properties();
-		try{
-			FileInputStream in = new FileInputStream("src/main/resources/testVipAdditiontest.properties");
-			try{
-				prop.load(in);
-				in.close();
-			}catch(IOException ioe){
-				System.out.println(ioe.getMessage());
-			}
-		}catch(FileNotFoundException fnfe){
-			System.out.println(fnfe.getMessage());
+	private void initProperties() {
+		prop = new Properties();
+		String propertiesLocation = "/testVipAdditiontest.properties";
+		try (
+			InputStream ip = this.getClass().getResourceAsStream(propertiesLocation);
+		) {
+			prop.load(ip);
+		} catch(IOException ioe){
+			logger.error("Error loading properties  {}", propertiesLocation, ioe);
+			throw new RuntimeException("No properties file found. Aborting.", ioe);
 		}
-		return prop;
 	}
 	
-	private static DefaultApi initClient(String url, String apiKey){
+	private void initClient(String url, String apiKey){
 		ApiClient testAPiclient = new ApiClient();
 		testAPiclient.setBasePath(url);
 		testAPiclient.setApiKey(apiKey);
-		return new DefaultApi(testAPiclient);
+		defaultApiClient =  new DefaultApi(testAPiclient);
 	}
 	
-	private static fr.insalyon.creatis.vip.client.data.api.DefaultApi initClientData(String url, String apiKey){
+	private void initClientData(String url, String apiKey){
 		fr.insalyon.creatis.vip.client.data.ApiClient testAPiclient = new fr.insalyon.creatis.vip.client.data.ApiClient();
 		testAPiclient.setBasePath(url);
 		testAPiclient.setApiKey(apiKey);
-		return new fr.insalyon.creatis.vip.client.data.api.DefaultApi(testAPiclient);
+		defaultApiClientData = new fr.insalyon.creatis.vip.client.data.api.DefaultApi(testAPiclient);
 	}
 	
-	public Execution initExecution(String directory, String name, int n1, int n2){
+	public Execution initAdditionExecution(String directory, String name, int n1, int n2){
 		Execution testExe = new Execution();
 		testExe.setName(name);
 		testExe.setPipelineIdentifier("AdditionTest/0.9");
@@ -88,7 +96,7 @@ public class VipTesterHelper {
 		return testExe;
 	}
 	
-	public Execution modifExecution(String newName, long newTimeout){ // I can add pipelineId ??? 
+	public Execution modifExecution(String newName, long newTimeout){ // Should I add pipelineId ??? 
 		Execution body = new Execution();
 		body.setName(newName);
 		body.setTimeout(newTimeout);
@@ -102,18 +110,21 @@ public class VipTesterHelper {
     	char aleaChar;
     	String aleaName = "";
     	
-    	// fill the character table
     	for(i = 0; i<83;i++){
     		table[i] = (char)j;
     		j++;
     	}
 
-    	for(i=0; i<15;i++){
+    	for(i=0; i<10;i++){
 	    	Random randomer = new Random();
 	    	int indice = randomer.nextInt(table.length);
 	    	aleaChar = table[indice];
 	    	aleaName += aleaChar;
     	}
     	return aleaName;
+	}
+	
+	public Path createDirectory(String relatifPath) throws ApiException{
+		return defaultApiClientData.createPath(getUriPrefix()+relatifPath);
 	}
 }
