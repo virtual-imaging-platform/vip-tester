@@ -1,5 +1,8 @@
 package fr.insalyon.creatis.vip.vip_tester;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -15,6 +18,7 @@ import fr.insalyon.creatis.vip.client.data.ApiException;
 import fr.insalyon.creatis.vip.client.data.model.Path;
 import fr.insalyon.creatis.vip.client.processing.ApiClient;
 import fr.insalyon.creatis.vip.client.processing.model.Execution;
+import fr.insalyon.creatis.vip.client.processing.model.Execution.StatusEnum;
 
 public class VipTesterHelper {
 	
@@ -47,6 +51,14 @@ public class VipTesterHelper {
 	
 	public String getUriPrefix(){
 		return prop.getProperty("viptest.uriprefix");
+	}
+	
+	public String getGrepTestPipelineId(){
+		return prop.getProperty("viptest.greptest.pipelineidentifier");
+	}
+	
+	public String getGrepTestPipelineIdString(){
+		return prop.getProperty("viptest.greptest.pipelineidentifierstring");
 	}
 	
 	public DefaultApi getDefaultApi(){
@@ -84,17 +96,17 @@ public class VipTesterHelper {
 		defaultApiClientData = new fr.insalyon.creatis.vip.client.data.api.DefaultApi(testAPiclient);
 	}
 	
-	public Execution initAdditionExecution(String directory, String name, int n1, int n2){
-		Execution testExe = new Execution();
-		testExe.setName(name);
-		testExe.setPipelineIdentifier("AdditionTest/0.9");
-		Map<String,Object> testMap = new HashMap<String, Object>();
-		testMap.put("number1", n1);
-		testMap.put("number2", n2);
-		testMap.put("results-directory", directory);
-		testExe.setInputValues(testMap);
-		return testExe;
-	}
+//	public Execution initAdditionExecution(String directory, String name, int n1, int n2){
+//		Execution testExe = new Execution();
+//		testExe.setName(name);
+//		testExe.setPipelineIdentifier("AdditionTest/0.9");
+//		Map<String,Object> testMap = new HashMap<String, Object>();
+//		testMap.put("number1", n1);
+//		testMap.put("number2", n2);
+//		testMap.put("results-directory", directory);
+//		testExe.setInputValues(testMap);
+//		return testExe;
+//	}
 	
 	public Execution modifExecution(String newName, long newTimeout){ // Should I add pipelineId ??? 
 		Execution body = new Execution();
@@ -126,5 +138,57 @@ public class VipTesterHelper {
 	
 	public Path createDirectory(String relatifPath) throws ApiException{
 		return defaultApiClientData.createPath(getUriPrefix()+relatifPath);
+	}
+	
+	public Execution initGrepExecution(String name, Object[] parameters){
+		Execution testExe = new Execution();
+		testExe.setName(name);
+		testExe.setPipelineIdentifier(getGrepTestPipelineIdString());
+		Map<String,Object> testMap = new HashMap<String, Object>();
+		testMap.put("results-directory", (String)parameters[0]);
+		testMap.put("text", (String)parameters[1]);
+		testMap.put("file", (String)parameters[2]);
+		testMap.put("output", (String)parameters[3]);	
+		testExe.setInputValues(testMap);
+		return testExe;
+	}
+	
+	public Execution initAdditionExecution(String name, Object[] parameters){
+		Execution testExe = new Execution();
+		testExe.setName(name);
+		testExe.setPipelineIdentifier(getAdditionTestPipelineIdString());
+		Map<String,Object> testMap = new HashMap<String, Object>();
+		testMap.put("results-directory", (String)parameters[0]);
+		testMap.put("number1", (Integer)parameters[1]);
+		testMap.put("number2", (Integer)parameters[2]);	
+		testExe.setInputValues(testMap);
+		return testExe;
+	}
+	
+	// launch an execution and check its status
+	public Execution launchExecution(String pipelineId, String name, Object... parameters) throws Exception{
+		Execution exe = null;
+		switch(pipelineId){
+			case "AdditionTest/0.9":
+				exe = initAdditionExecution(name, parameters);
+				break;
+			case "GrepTest/1.1":
+				exe = initGrepExecution(name, parameters);
+				break;
+			default:
+				throw new RuntimeException(pipelineId+"is not a valid pipeline");
+		}
+		Execution result = defaultApiClient.initAndStartExecution(exe);
+		return result;
+	}
+	
+	// download the content of the result file and delete newPath
+	public String download(String executionId, String relatifPath) throws Exception{
+		String returnedFile = defaultApiClient.getExecution(executionId).getReturnedFiles().get("output_file").get(0);
+		String[] split = returnedFile.split("/");	
+		String resultDirectory = getUriPrefix()+relatifPath+"/";
+		String uri = resultDirectory+split[6]+"/"+split[7];
+		String ExecutionResult = defaultApiClientData.downloadFile(uri);
+		return ExecutionResult;
 	}
 }
