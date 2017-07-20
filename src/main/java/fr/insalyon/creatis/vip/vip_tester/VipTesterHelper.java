@@ -102,19 +102,7 @@ public class VipTesterHelper {
 		testAPiclient.setApiKey(apiKey);
 		defaultApiClientData = new fr.insalyon.creatis.vip.client.data.api.DefaultApi(testAPiclient);
 	}
-	
-//	public Execution initAdditionExecution(String directory, String name, int n1, int n2){
-//		Execution testExe = new Execution();
-//		testExe.setName(name);
-//		testExe.setPipelineIdentifier("AdditionTest/0.9");
-//		Map<String,Object> testMap = new HashMap<String, Object>();
-//		testMap.put("number1", n1);
-//		testMap.put("number2", n2);
-//		testMap.put("results-directory", directory);
-//		testExe.setInputValues(testMap);
-//		return testExe;
-//	}
-	
+		
 	public Execution modifExecution(String newName, long newTimeout){ // Should I add pipelineId ??? 
 		Execution body = new Execution();
 		body.setName(newName);
@@ -155,7 +143,6 @@ public class VipTesterHelper {
 		testMap.put("results-directory", (String)parameters[0]);
 		testMap.put("text", (String)parameters[1]);
 		testMap.put("file", (String)parameters[2]);
-		testMap.put("output", (String)parameters[3]);	
 		testExe.setInputValues(testMap);
 		return testExe;
 	}
@@ -179,7 +166,7 @@ public class VipTesterHelper {
 			case "AdditionTest/0.9":
 				exe = initAdditionExecution(name, parameters);
 				break;
-			case "GrepTest/1.1":
+			case "GrepTest/1.2":
 				exe = initGrepExecution(name, parameters);
 				break;
 			default:
@@ -190,18 +177,31 @@ public class VipTesterHelper {
 	}
 	
 	// download the content of the result file and delete newPath
-	public String download(String executionId, String relatifPath) throws Exception{
-		String returnedFile = defaultApiClient.getExecution(executionId).getReturnedFiles().get("output_file").get(0);
+	public String download(String pipelineId, String executionId, String relatifPath) throws Exception{
+		String returnedFile = null;
+		switch(pipelineId){
+		case "AdditionTest/0.9":
+			returnedFile = defaultApiClient.getExecution(executionId).getReturnedFiles().get("output_file").get(0);
+			break;
+		case "GrepTest/1.2":
+			returnedFile = defaultApiClient.getExecution(executionId).getReturnedFiles().get("output").get(0);
+			break;
+		default:
+			throw new RuntimeException("download method is not implmented for: "+pipelineId);
+		}
+		logger.debug("returned file: {}",defaultApiClient.getExecution(executionId).getReturnedFiles().get("output"));
 		String[] split = returnedFile.split("/");	
 		String resultDirectory = getUriPrefix()+relatifPath+"/";
 		String uri = resultDirectory+split[6]+"/"+split[7];
 		String ExecutionResult = defaultApiClientData.downloadFile(uri);
 		return ExecutionResult;
+//		return "blable";
 	}
 	
-	public void prepareInputFile(String relatifPath){
+	public UploadData prepareInputFile(String relatifPath){
 		//A METTRE DANS VipTesterHelper
 		//open test file with java
+		UploadData data = null;
 		String testFileLocation = "/listeF";
 		try (
 				InputStream ip = this.getClass().getResourceAsStream(testFileLocation);
@@ -214,12 +214,13 @@ public class VipTesterHelper {
 		    logger.info("content file: {}", text);
 		    String content = DatatypeConverter.printBase64Binary(text.getBytes());
 		    
-			UploadData data = initUploadData(relatifPath, content);
+			data = initUploadData(relatifPath, content);
 
 			} catch(IOException ioe){
 				logger.error("Error loading input file  {}", testFileLocation, ioe);
 				throw new RuntimeException("No input file found. Aborting.", ioe);
 			}
+		return data;
 	}
 	
 	public UploadData initUploadData(String relatifPath, String content){

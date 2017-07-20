@@ -59,7 +59,7 @@ public class ScenarioExecutionProcessTest {
 			//check the execution status every 20s + timeout=10mn
 			vch.checkExecutionProcess(executionId);		
 			// download the content of the result file and delete newPath
-			String executionResult = vth.download(executionId, relatifPath);	
+			String executionResult = vth.download(pipelineId, executionId, relatifPath);	
 			logger.info("result: {}", executionResult);		
 		} finally{
 			if(vch.checkDirectoryExist(VIP_HOME_ADDITION_TEST)){

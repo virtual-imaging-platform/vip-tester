@@ -57,23 +57,25 @@ public class ScenarioUploadFileTest {
 		
 		try{
 			
-			vth.prepareInputFile(relatifPath);
+		UploadData encodedData = vth.prepareInputFile(relatifPath);
+		clientData.uploadFile(encodedData);
 			
 			// check of pipeline's parameters
 			Pipeline pip = client.getPipeline(vth.getGrepTestPipelineId());
 			logger.debug("grep pipeline: {}", pip);
 			
-			Execution execut = vth.launchExecution(pipelineId, "testUpload", relatifPath,"prune", relatifPath+"/liste", "coconut");
+			Execution execut = vth.launchExecution(pipelineId, "testUpload", relatifPath,"Prune", relatifPath+"/listeFruit");
 			vch.checkExecutionRunningState(execut);
 			String executionId = execut.getIdentifier();
 						
 			vch.checkExecutionProcess(executionId);
 			
-			vth.download(executionId, relatifPath);
+			String result = vth.download(pipelineId, executionId, relatifPath);
+			logger.info("result of the execution: {}", result);
 		}finally{
 			logger.debug("in finally bloc");
 			if(vch.checkDirectoryExist(relatifPath)){
-				clientData.deletePath(uri);
+//				clientData.deletePath(uri);
 			}
 		}
 	}

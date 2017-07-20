@@ -64,7 +64,7 @@ public class VipCheckerHelper {
 			case "AdditionTest/0.9":
 				checkAdditionPipelineParameters();
 				break;
-			case "GrepTest/1.1":
+			case "GrepTest/1.2":
 				checkGrepPipelineParameters();
 				break;
 			default:				
@@ -92,8 +92,9 @@ public class VipCheckerHelper {
 	//check GrepTest pipeline parameters
 	private void checkGrepPipelineParameters() throws Exception{
 		Pipeline pipelineResult = client.getPipeline(vth.getGrepTestPipelineId());
+		logger.debug("pipeline: {}", pipelineResult);
 		List<PipelineParameter> pipelineParam = pipelineResult.getParameters();
-		assertThat("It must have 4 parameters", pipelineParam.size(), is(4));
+		assertThat("It must have 3 parameters", pipelineParam.size(), is(3));
 		
 		int cmptFile = 0, cmptString = 0;
 		for(PipelineParameter pp : pipelineResult.getParameters()){
@@ -108,7 +109,7 @@ public class VipCheckerHelper {
 				}
 			}				
 		}
-		boolean conditionSuccess = (cmptFile==2) && (cmptString==2); 
+		boolean conditionSuccess = (cmptFile==2) && (cmptString==1); 
 		assertThat("It must have 2 parameters of type string and 2 others of file type", conditionSuccess, is(true)) ;		
 		return;
 	}
