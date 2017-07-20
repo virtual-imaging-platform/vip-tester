@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.*;
 
+import java.util.List;
+
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -30,23 +32,23 @@ public class ScenarioKillAndRestartTest {
 			//create and start the execution
 			Execution execut1 = vth.launchExecution(pipelineId, "bugExecution", relatifPath, 3, 53);
 			vch.checkExecutionRunningState(execut1);
-			String executionId1 = execut1.getIdentifier();
+			String executionId1 = execut1.getIdentifier();									
 			
-						
-			//execution history
-			client.listExecutions();
-
+			//execution history ???
+			List<Execution> list = client.listExecutions();
+			
 			//kill the bugged execution and check its status
 			client.killExecution(executionId1);
 			logger.debug("status must be killed, it is: {}", execut1.getStatus());
-			vch.checkExecutionKilledState(execut1, executionId1);
-					
+			vch.checkExecutionKilledState(execut1, executionId1);					
+			
 			//create and restart the execution check its status
 			Execution execut2 = vth.launchExecution(pipelineId, "restartedExecution", relatifPath, 4, 54);
 			vch.checkExecutionRunningState(execut2);
 			String executionId2 = execut2.getIdentifier();
 			vch.checkExecutionRunningState(execut2);
 
+			// kill restart execution
 			client.killExecution(executionId2);
 			vch.checkExecutionKilledState(execut2, executionId2);
 	}

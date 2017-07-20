@@ -44,42 +44,27 @@ public class ScenarioExecutionProcessTest {
 		String pipelineId = vth.getAdditionTestPipelineIdString();
 		String relatifPath = "/vip/Home/additionTest";
 		// Search if the pipeline exist
-		vch.checkPipelineIsPresent(pipelineId);
-		
+		vch.checkPipelineIsPresent(pipelineId);		
 		//check parameters for a specified pipeline
-		vch.checkPipelineParameters(pipelineId);
-		
+		vch.checkPipelineParameters(pipelineId);		
 		// create a new path where the future result will be stocked
 		vth.createDirectory(VIP_HOME_ADDITION_TEST);
-		vch.checkDirectoryExist(VIP_HOME_ADDITION_TEST);
-
-				
+		vch.checkDirectoryExist(VIP_HOME_ADDITION_TEST);				
 		try{
 			//create and start an execution and check its status
-//			String executionId = launchExecution();
 			logger.debug("pipe: {}", pipelineId);
 			Execution execut = vth.launchExecution(pipelineId, "testExecutionProcess", relatifPath, 2, 3);
 			vch.checkExecutionRunningState(execut);
 			String executionId = execut.getIdentifier();
 			//check the execution status every 20s + timeout=10mn
-			vch.checkExecutionProcess(executionId);
-		
+			vch.checkExecutionProcess(executionId);		
 			// download the content of the result file and delete newPath
 			String executionResult = vth.download(executionId, relatifPath);	
 			logger.info("result: {}", executionResult);		
 		} finally{
-			logger.debug("in finally bloc");
 			if(vch.checkDirectoryExist(VIP_HOME_ADDITION_TEST)){
 				clientData.deletePath(uriPrefix+VIP_HOME_ADDITION_TEST);
 			}
 		}
-	}
-			
-	// launch an execution and check its status
-//	public String launchExecution() throws Exception{
-//		Execution result = client.initAndStartExecution(vth.initAdditionExecution(VIP_HOME_ADDITION_TEST,"testScenario1", 0, 1));
-//		assertThat("The status must be \"running\"", result.getStatus(), is(StatusEnum.RUNNING));
-//		return result.getIdentifier();
-//	}		
-	
+	}						
 }
