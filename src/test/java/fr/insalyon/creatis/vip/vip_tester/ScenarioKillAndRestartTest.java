@@ -17,34 +17,37 @@ import static org.hamcrest.Matchers.is;
 public class ScenarioKillAndRestartTest {
 	
 	private VipTesterHelper vth = new VipTesterHelper();
+	private VipCheckerHelper vch = new VipCheckerHelper();
 	private DefaultApi client = vth.getDefaultApi();
 	private static Logger logger = LoggerFactory.getLogger(ScenarioKillAndRestartTest.class);
 	
 	
 	//tries kill a bugged execution end restart it
 		@Test
-		public void scenario3() throws Exception{		
+		public void scenario3() throws Exception{
+			String pipelineId = vth.getAdditionTestPipelineIdString();
+			String relatifPath = "/vip/Home";
 			//create and start the execution
-			Execution body = vth.initAdditionExecution("vip/Home", "newScenarioKo", 1, 2);
-			Execution result = client.initAndStartExecution(body);
-			String resId = result.getIdentifier();				
-			assertThat("the execution is not launched", result.getStatus(), is(StatusEnum.RUNNING));
+			Execution execut1 = vth.launchExecution(pipelineId, "bugExecution", relatifPath, 3, 53);
+			vch.checkExecutionRunningState(execut1);
+			String executionId1 = execut1.getIdentifier();
 			
+						
 			//execution history
 			client.listExecutions();
 
 			//kill the bugged execution and check its status
-			client.killExecution(resId);
-			result = client.getExecution(resId);
-			assertThat("the bugged execution is not killed", result.getStatus(), is(StatusEnum.KILLED));
+			client.killExecution(executionId1);
+			logger.debug("status must be killed, it is: {}", execut1.getStatus());
+			vch.checkExecutionKilledState(execut1, executionId1);
 					
 			//create and restart the execution check its status
-			body = vth.initAdditionExecution("vip/Home", "newScenario3", 1, 2);
-			result = client.initAndStartExecution(body);
-			assertThat("the execution has not been launched", result.getStatus(), is(StatusEnum.RUNNING));
-			resId = result.getIdentifier();
-			client.killExecution(resId);
-			
-			assertThat("The new execution is not launch", result.getStatus(), is(StatusEnum.RUNNING));
+			Execution execut2 = vth.launchExecution(pipelineId, "restartedExecution", relatifPath, 4, 54);
+			vch.checkExecutionRunningState(execut2);
+			String executionId2 = execut2.getIdentifier();
+			vch.checkExecutionRunningState(execut2);
+
+			client.killExecution(executionId2);
+			vch.checkExecutionKilledState(execut2, executionId2);
 	}
 }

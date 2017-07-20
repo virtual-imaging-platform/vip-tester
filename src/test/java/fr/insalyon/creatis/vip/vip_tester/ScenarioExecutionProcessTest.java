@@ -59,7 +59,7 @@ public class ScenarioExecutionProcessTest {
 //			String executionId = launchExecution();
 			logger.debug("pipe: {}", pipelineId);
 			Execution execut = vth.launchExecution(pipelineId, "testExecutionProcess", relatifPath, 2, 3);
-			vch.checkExecutionState(execut);
+			vch.checkExecutionRunningState(execut);
 			String executionId = execut.getIdentifier();
 			//check the execution status every 20s + timeout=10mn
 			vch.checkExecutionProcess(executionId);

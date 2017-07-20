@@ -38,8 +38,13 @@ public class VipCheckerHelper {
 		
 	}
 	
-	public void checkExecutionState(Execution exe){
+	public void checkExecutionRunningState(Execution exe){
 		assertThat("The status must be \"running\"", exe.getStatus(), is(StatusEnum.RUNNING));
+	}
+	
+	public void checkExecutionKilledState(Execution exe, String exeId) throws Exception{
+		Execution result = client.getExecution(exeId);
+		assertThat("The status must be \"killed\"", result.getStatus(), is(StatusEnum.KILLED));
 	}
 	
 	public void checkPipelineIsPresent(String pipelineId) throws Exception{

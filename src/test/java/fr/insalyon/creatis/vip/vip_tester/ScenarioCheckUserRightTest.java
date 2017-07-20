@@ -18,27 +18,34 @@ import org.junit.Test;
 
 public class ScenarioCheckUserRightTest {
 	private VipTesterHelper vth = new VipTesterHelper();
+	private VipCheckerHelper vch = new VipCheckerHelper();
 	private DefaultApi client = vth.getDefaultApi();
 	private static Logger logger = LoggerFactory.getLogger(ScenarioCheckUserRightTest.class);
 	
 	@Test
-	public void scenario6() throws Exception{	
+	public void scenario6() throws Exception{
+		String pipelineId = vth.getAdditionTestPipelineIdString();
+		String relatifPath = "/vip/Home";
 		//create and start an execution
-		Execution body = vth.initAdditionExecution("vip/Home", "newScenario3", 1, 2);
-		Execution result = client.initAndStartExecution(body);
-		assertThat("the execution is not running", result.getStatus(), is(StatusEnum.RUNNING));
-		String resId = result.getIdentifier(); 
-		
+		Execution execut1 = vth.launchExecution(pipelineId, "updateExe1", relatifPath, 1, 51);
+		vch.checkExecutionRunningState(execut1);
+		String executionId1 = execut1.getIdentifier();
+				
 		//create and start another execution
+		String executionId2 = null;
+		Execution execut2 = null;
 		try{
-			body = vth.initAdditionExecution("vip/Home", "newScenario3", 1, 2);
-			result = client.initAndStartExecution(body);
+			//create and start an execution
+			execut2 = vth.launchExecution(pipelineId, "updateExe2", relatifPath, 2, 52);
+			vch.checkExecutionRunningState(execut2);
+			executionId2 = execut2.getIdentifier();
 		}catch(ApiException ae){
-			client.killExecution(resId);
+			client.killExecution(executionId1);
 			return;
 		}
-		client.killExecution(resId);
-		client.killExecution(result.getIdentifier());
+		client.killExecution(executionId1);
+		vch.checkExecutionKilledState(execut2, executionId2);
+		client.killExecution(executionId2);
 		throw new RuntimeException(" with that type of right you can't launch 2 execution in the same time");
 	}
 }

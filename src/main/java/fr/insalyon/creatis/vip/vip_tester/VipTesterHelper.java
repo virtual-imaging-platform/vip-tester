@@ -5,17 +5,24 @@ import static org.hamcrest.Matchers.is;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 
+import javax.xml.bind.DatatypeConverter;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.io.CharStreams;
 
 import fr.insalyon.creatis.vip.client.processing.api.DefaultApi;
 import fr.insalyon.creatis.vip.client.data.ApiException;
 import fr.insalyon.creatis.vip.client.data.model.Path;
+import fr.insalyon.creatis.vip.client.data.model.UploadData;
 import fr.insalyon.creatis.vip.client.processing.ApiClient;
 import fr.insalyon.creatis.vip.client.processing.model.Execution;
 import fr.insalyon.creatis.vip.client.processing.model.Execution.StatusEnum;
@@ -190,5 +197,35 @@ public class VipTesterHelper {
 		String uri = resultDirectory+split[6]+"/"+split[7];
 		String ExecutionResult = defaultApiClientData.downloadFile(uri);
 		return ExecutionResult;
+	}
+	
+	public void prepareInputFile(String relatifPath){
+		//A METTRE DANS VipTesterHelper
+		//open test file with java
+		String testFileLocation = "/listeF";
+		try (
+				InputStream ip = this.getClass().getResourceAsStream(testFileLocation);
+			) {
+		    String text = null;
+		    try (final Reader reader = new InputStreamReader(ip)) {
+		        text = CharStreams.toString(reader);
+		    }
+		  
+		    logger.info("content file: {}", text);
+		    String content = DatatypeConverter.printBase64Binary(text.getBytes());
+		    
+			UploadData data = initUploadData(relatifPath, content);
+
+			} catch(IOException ioe){
+				logger.error("Error loading input file  {}", testFileLocation, ioe);
+				throw new RuntimeException("No input file found. Aborting.", ioe);
+			}
+	}
+	
+	public UploadData initUploadData(String relatifPath, String content){
+		UploadData data = new UploadData();
+		data.setUri(getUriPrefix()+relatifPath+"/listeFruit");
+		data.setPathContent(content);
+		return data;
 	}
 }

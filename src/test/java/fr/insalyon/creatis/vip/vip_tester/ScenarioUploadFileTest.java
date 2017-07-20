@@ -44,9 +44,9 @@ public class ScenarioUploadFileTest {
 	@Test
 	public void scenario7() throws Exception{
 		String relatifPath = "/vip/Home/uploadTest";
-		String uri = vth.getUriPrefix()+relatifPath;
-		
+		String uri = vth.getUriPrefix()+relatifPath;		
 		String pipelineId = vth.getGrepTestPipelineIdString();
+		
 		vch.checkPipelineIsPresent(pipelineId);
 		
 		vch.checkPipelineParameters(pipelineId);
@@ -57,40 +57,14 @@ public class ScenarioUploadFileTest {
 		
 		try{
 			
-			//open test file with java
-			String testFileLocation = "/listeF";
-			try (
-					InputStream ip = this.getClass().getResourceAsStream(testFileLocation);
-				) {
-			    String text = null;
-			    try (final Reader reader = new InputStreamReader(ip)) {
-			        text = CharStreams.toString(reader);
-			    }
-			  
-			    logger.info("content file: {}", text);
-			    String str = DatatypeConverter.printBase64Binary(text.getBytes());
-			    logger.debug("encoded text: {}", str);
-			    String res = new String(DatatypeConverter.parseBase64Binary(str));
-			    logger.debug("decoded text: {}",res);
-			    
-
-				UploadData data = new UploadData();
-				data.setUri(vth.getUriPrefix()+relatifPath+"/listeFruit");
-
-				data.setPathContent(str);
-				clientData.uploadFile(data);
-//					prop.load(ip);
-				} catch(IOException ioe){
-					logger.error("Error loading properties  {}", testFileLocation, ioe);
-					throw new RuntimeException("No properties file found. Aborting.", ioe);
-				}
+			vth.prepareInputFile(relatifPath);
 			
 			// check of pipeline's parameters
 			Pipeline pip = client.getPipeline(vth.getGrepTestPipelineId());
 			logger.debug("grep pipeline: {}", pip);
 			
 			Execution execut = vth.launchExecution(pipelineId, "testUpload", relatifPath,"prune", relatifPath+"/liste", "coconut");
-			vch.checkExecutionState(execut);
+			vch.checkExecutionRunningState(execut);
 			String executionId = execut.getIdentifier();
 						
 			vch.checkExecutionProcess(executionId);
@@ -102,23 +76,5 @@ public class ScenarioUploadFileTest {
 				clientData.deletePath(uri);
 			}
 		}
-	}
-	
-	//check pipeline parameters
-	public void checkGrepPipelineParameters() throws ApiException{
-		Pipeline pipelineResult = client.getPipeline(vth.getGrepTestPipelineId());
-		List<PipelineParameter> pipelineParam = pipelineResult.getParameters();
-		assertThat("It must have 4 parameters", pipelineParam.size(), is(4));
-		
-//		int cmptInt = 0;
-//		for(PipelineParameter pp : pipelineResult.getParameters()){
-//			if(!(pp.getName().equals("results-directory"))){
-//				if(pp.getType().equals(ParameterType.STRING)){
-//					cmptInt++;
-//				}
-//			}
-//		}
-//		assertThat("It must have 2 parameters of type string for the addition", cmptInt, is(2)) ;		
-		return;
 	}
 }
