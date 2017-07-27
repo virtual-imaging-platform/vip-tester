@@ -60,7 +60,7 @@ public class ScenarioExecutionProcessTest {
 			vch.checkExecutionProcess(executionId);		
 			// download the content of the result file and delete newPath
 			String executionResult = vth.download(pipelineId, executionId, relatifPath);	
-			logger.info("result: {}", executionResult);		
+			logger.info("result: {}", executionResult);
 		} finally{
 			if(vch.checkDirectoryExist(VIP_HOME_ADDITION_TEST)){
 				clientData.deletePath(uriPrefix+VIP_HOME_ADDITION_TEST);

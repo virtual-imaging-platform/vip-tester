@@ -75,7 +75,7 @@ public class ScenarioUploadFileTest {
 		}finally{
 			logger.debug("in finally bloc");
 			if(vch.checkDirectoryExist(relatifPath)){
-//				clientData.deletePath(uri);
+				clientData.deletePath(uri);
 			}
 		}
 	}
