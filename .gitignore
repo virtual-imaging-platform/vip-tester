@@ -1,0 +1,6 @@
+/target/
+
+# Eclipse informations
+.classpath
+.project
+.settings/
